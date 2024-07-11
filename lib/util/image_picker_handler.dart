@@ -36,11 +36,11 @@ class ImagePickerHandler {
       final secretImage =
           dImage.decodeImage(File(path.secretPath!).readAsBytesSync())!;
       final embeddedImageCover =
-          steganography.embedImage(coverImage, secretImage);
+          steganography.embedImage(coverImage, secretImage, saveImage: true);
       final embeddedBytes =
           Uint8List.fromList(dImage.encodePng(embeddedImageCover));
       final extractedSecretImage = steganography.extractImage(
-          embeddedImageCover, secretImage.width, secretImage.height);
+          embeddedImageCover, secretImage.width, secretImage.height, saveImage: true);
       final extractedBytes =
           Uint8List.fromList(dImage.encodePng(extractedSecretImage));
 
