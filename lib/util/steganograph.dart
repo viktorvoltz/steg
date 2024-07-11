@@ -97,7 +97,7 @@ class Steganography {
     return coverImage;
   }
 
-  Uint8List extractImage(Image stegoImage, int secretWidth, int secretHeight,
+  Image extractImage(Image stegoImage, int secretWidth, int secretHeight,
       {bool? saveImage}) {
     Image extractedImage = Image(width: secretWidth, height: secretHeight);
 
@@ -120,7 +120,7 @@ class Steganography {
       _saveImage(extractedImage, "extractedImage");
     }
 
-    return encodePng(extractedImage);
+    return extractedImage;
   }
 
   void _embedBit(Image image, int x, int y, int bitValue) {
