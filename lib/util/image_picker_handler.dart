@@ -1,13 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:enigma/util/steganograph.dart';
+import 'package:flutter_steganograph/flutter_steganograph.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as dImage;
 
 class ImagePickerHandler {
   static Future<Uint8List?> getImage() async {
     String input = "super secret message";
-    final steganography = Steganography();
+    final steganography = Steganograph();
     String? path = await imagePath();
     late dImage.Image coverImageText;
     if (path != null) {
@@ -16,33 +16,41 @@ class ImagePickerHandler {
       } else {
         coverImageText = dImage.decodeJpg(File(path).readAsBytesSync())!;
       }
-      final embeddedTextImage =
-          steganography.embedText(coverImageText, input);
+      final embeddedTextImage = steganography.embedText(
+        image: coverImageText,
+        text: input,
+      );
 
-      steganography.extractText(embeddedTextImage, input.length);
+      steganography.extractText(
+        image: dImage.decodePng(embeddedTextImage)!,
+        length: input.length,
+      );
 
-      var bytes = Uint8List.fromList(dImage.encodePng(embeddedTextImage));
+      var bytes = embeddedTextImage;
       return bytes;
     }
   }
 
   static Future<({Uint8List? embeddedBytes, Uint8List? extractedBytes})>
       getMultipleImage() async {
-    final steganography = Steganography();
+    final steganography = Steganograph();
     ({String? coverPath, String? secretPath}) path = await multipleImagePath();
     if (path.coverPath != null && path.secretPath != null) {
       final coverImage =
           dImage.decodeImage(File(path.coverPath!).readAsBytesSync())!;
       final secretImage =
           dImage.decodeImage(File(path.secretPath!).readAsBytesSync())!;
-      final embeddedImageCover =
-          steganography.embedImage(coverImage, secretImage, saveImage: true);
-      final embeddedBytes =
-          Uint8List.fromList(dImage.encodePng(embeddedImageCover));
+      final embeddedImageCover = steganography.embedImage(
+        coverImage: coverImage,
+        secretImage: secretImage,
+      );
+      final embeddedBytes = embeddedImageCover;
       final extractedSecretImage = steganography.extractImage(
-          embeddedImageCover, secretImage.width, secretImage.height, saveImage: true);
-      final extractedBytes =
-          Uint8List.fromList(dImage.encodePng(extractedSecretImage));
+        embeddedImage: dImage.decodePng(embeddedImageCover)!,
+        secretWidth: secretImage.width,
+        secretHeight: secretImage.height,
+      );
+      final extractedBytes = extractedSecretImage;
 
       return (embeddedBytes: embeddedBytes, extractedBytes: extractedBytes);
     } else {
@@ -73,7 +81,7 @@ class ImagePickerHandler {
     if (image.isNotEmpty) {
       path1 = image[0]!.path;
       path2 = image[1]!.path;
-    }else{
+    } else {
       path1 = null;
       path2 = null;
     }
